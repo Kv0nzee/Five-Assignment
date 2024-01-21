@@ -1,13 +1,7 @@
 <?php
-session_start();
+require_once("Connect.php");
 
-// Unset all session variables
-$_SESSION = array();
+unset($_SESSION['user']);
+header('Location: ./');
 
-// Destroy the session
-session_destroy();
-
-// Redirect to the login page
-header("Location: login.php");
-exit();
 ?>

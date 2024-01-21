@@ -1,49 +1,48 @@
 <?php
-
-require_once("./components/navbar.php");
-// Check if the user is logged in
+require('./components/header.php');
 if (isset($_SESSION['user'])) {
     $loggedInUser = $_SESSION['user'];
 
-    // Fetch order history for the user
-    $orderHistorySQL = "SELECT o.orderID, o.orderDate, o.totalPrice
-                        FROM orders o
-                        WHERE o.userID = :userID
-                        ORDER BY o.orderDate DESC";
-    
-    $orderHistoryStmt = $pdo->prepare($orderHistorySQL);
-    $orderHistoryStmt->bindParam(':userID', $loggedInUser['userID'], PDO::PARAM_INT);
-    $orderHistoryStmt->execute();
-    $orderHistory = $orderHistoryStmt->fetchAll(PDO::FETCH_ASSOC);
+    $orders = getAllOrdersbyUser($loggedInUser['userID']);
+
 } else {
     // If the user is not logged in, redirect to the login page
-    header("Location: login.php");
+    header("Location: ./");
     exit();
 }
+
 ?>
 
 <body>
     <div class="container mt-3">
         <h2>Order History</h2>
 
-        <?php if (!empty($orderHistory)) : ?>
-            <table class="table table-striped table-primary">
+        <?php if (!empty($orders)) : ?>
+            <table class="table table-striped ">
                 <thead>
-                    <tr>
-                        <th>Order ID</th>
+                    <tr class="text-center">
+                        <th > Image</th>
                         <th>Order Date</th>
-                        <th>Total Price</th>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Payment Type</th>
                         <th>Details</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($orderHistory as $order) : ?>
-                        <tr>
-                            <td><?= $order['orderID'] ?></td>
-                            <td><?= $order['orderDate'] ?></td>
-                            <td>$<?= $order['totalPrice'] ?></td>
-                            <td>
-                                <a href="OrderDetails_user.php?orderID=<?= $order['orderID'] ?>" class="btn btn-primary">View Details</a>
+                    <?php foreach ($orders as $order) : 
+                        $product = getProductDetails($order['product_id']);
+                    ?>
+                        <tr class="text-center">
+                            <td  class=" my-auto border-bottom-0" style="width:100px">
+                                        <img src="<?= $product['productImg'] ?>" alt="Product Image" class="img-fluid">
+                            </td>
+                            <td class="my-auto"><?= $order['order_date'] ?></td>
+                            <td class="my-auto"><?= $product['productName'] ?></td>
+                            <td class="my-auto"><?= $order['quantity'] ?></td>
+                            <td class="my-auto"><?= $order['paymentType'] ?></td>
+                            <td class="my-auto">
+                                <a href="OrderDetail.php?orderID=<?= $order['order_id'] ?>" class="btn btn-primary">View Details</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -53,5 +52,8 @@ if (isset($_SESSION['user'])) {
             <p>No order history available.</p>
         <?php endif; ?>
 
-        <a href="./" class="btn btn-primary mt-3">Back to Product View</a>
+        <a href="./" class="btn btn-primary mt-3 mb-5">Back to Product View</a>
     </div>
+    <?php 
+    require('./components/footer.php');
+?>

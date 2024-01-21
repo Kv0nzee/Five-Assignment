@@ -1,18 +1,43 @@
-<div class="col my-3">
-    <div class="card h-100 shadow-sm">
-        <a href="productDetailView.php?id=<?= $product['productID'] ?>"><img src="<?= $product['imagePath'] ?>" class="card-img-top" alt="Product Image" style="height:200px;"></a>
-        <div class="card-body">
-            <div class="clearfix mb-3">
-                <span class="float-start badge rounded-pill bg-primary"><?= $product['categoryName'] ?></span>
-                <span class="float-end price-hp">$<?= $product['productPrice'] ?></span>
-            </div>
-            <h5 class="card-title"><?= $product['productName'] ?></h5>
-            <div class="text-center my-4">
-                <form method="POST" action="addToCart.php">
-                    <input type="hidden" name="productID" value="<?= $product['productID'] ?>">
-                    <button name="add_to_cart" class="btn btn-primary">Add to Cart</button>
-                </form>
-            </div>
-        </div>
-    </div>
+<?php
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    // Ensure that the productID is set in the POST request
+    if (isset($_POST['productID'])) {
+        $id = $_POST['productID'];  
+    
+        if (!isset($_SESSION['cart'][$id])) {
+            // Assuming you have a $pdo connection and getProductCatName function
+            $product = getProductDetails($id); // You need to define this function
+            $_SESSION['cart'][$id] = [
+                'productID'             => $id,
+                'productName'           => $product['productName'],
+                'productDescription'    => $product['productDescription'],
+                'catId'                 => getProductCatName($product['catId']),
+                'productPrice'          => $product['productPrice'],
+                'productStock'          => $product['productStock'],
+                'productImg'            => $product['productImg'],
+                'qty'                   => 1
+            ];
+        } else {
+            $_SESSION['cart'][$id]["qty"] += 1;
+        }
+        header("Location:shop.php");
+        exit();
+    }
+}
+?>
+
+<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+    <a class="product-item" href="productDetailView.php?id=<?= $product['productID']?>">
+        <img src="<?= $product['productImg']?>" class="img-fluid product-thumbnail" style="height:250px;">
+        <h3 class="product-title"><?= $product['productName']?></h3>
+        <strong class="product-price">$<?= $product['productPrice']?></strong>
+        <form method="POST">
+            <!-- Include a hidden input to submit the product ID -->
+            <input type="hidden" name="productID" value="<?= $product['productID'] ?>">
+            <button name="add_to_cart" type="submit" class="icon-cross">
+                <img src="images/cross.svg" class="img-fluid">
+            </button>
+        </form>
+    </a>
 </div>

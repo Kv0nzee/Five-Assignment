@@ -1,73 +1,123 @@
-<?php
-// require_once("./sql/categorysql.php");
-// require_once("./sql/productSql.php");
-// require_once("./sql/userSql.php");
-// require_once("./sql/orderSql.php");
-require_once("./components/navbar.php");
 
-// Fetch all categories from the database
-$sqlCategories = "SELECT * FROM categories";
-$statementCategories = $pdo->prepare($sqlCategories);
-$statementCategories->execute();
-$categories = $statementCategories->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle search query
-$min_price = isset($_GET['min_price']) ? $_GET['min_price'] : null;
-$max_price = isset($_GET['max_price']) ? $_GET['max_price'] : null;
-$category = isset($_GET['category']) ? $_GET['category'] : null;
-$search = isset($_GET['search']) ? $_GET['search'] : null;
+<?php 
+	require('./components/header.php');
 
-$sql = "SELECT p.*, c.categoryName FROM products p
-        LEFT JOIN categories c ON p.categoryID = c.categoryID";
-
-// Add conditions to the SQL query based on the selected category
-if (!empty($category)) {
-    $sql .= " WHERE p.categoryID = :category";
-}
-if (!empty($min_price)) {
-    $sql .= (!empty($category) ? " AND" : " WHERE") . " p.productPrice >= :min_price";
-}
-if (!empty($max_price)) {
-    $sql .= (!empty($min_price) || !empty($category) ? " AND" : " WHERE") . " p.productPrice <= :max_price";
-}
-if (!empty($search)) {
-    $sql .= (!empty($min_price) || !empty($max_price) || !empty($category) ? " AND" : " WHERE") . " p.productName LIKE :search";
-}
-
-$statement = $pdo->prepare($sql);
-
-// Bind values for conditions
-if (!empty($category)) {
-    $statement->bindValue(':category', $category, PDO::PARAM_INT);
-}
-if (!empty($min_price)) {
-    $statement->bindValue(':min_price', $min_price, PDO::PARAM_INT);
-}
-if (!empty($max_price)) {
-    $statement->bindValue(':max_price', $max_price, PDO::PARAM_INT);
-}
-if (!empty($search)) {
-    $searchTerm = "%$search%";
-    $statement->bindValue(':search', $searchTerm, PDO::PARAM_STR);
-}
-
-$statement->execute();
-$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+	$heroBanner = getHeroBannerProduct();
+	$threeProducts = getThreeProducts();
 ?>
 
-<div class="container w-100 p-5 flex-wrap">
-    <div class="d-flex justify-content-between align-items-center my-4">
-        <h2>User Product View</h2>
-    </div>
+		
+	<?php require("./components/heroBanner.php") ?>
+		<!-- End Hero Section -->
 
-    <!-- Filter Form -->
-    <?php require('./components/filterform.php') ?>
+		<!-- Start Product Section -->
+		<div class="product-section">
+			<div class="container">
+				<div class="row">
 
-    <!-- Product List -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-320 ">
-        <?php foreach ($result as $product) :
-            require('./components/card.php');
-        endforeach; ?>
+					<!-- Start Title -->
+					<div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
+						<h2 class="mb-4 section-title">Crafted with excellent material.</h2>
+						<p class="mb-4">Premium materials for exceptional home appliance performance.</p>
+						<p><a href="shop.html" class="btn">Explore</a></p>
+					</div> 
+					<!-- End Title  -->
+
+					<!-- Start Product  -->
+					<?php foreach($threeProducts as $product){?>
+						<?php require("./components/card.php") ?>
+					<?php }?>
+					<!-- End Product  -->
+				</div>
+			</div>
+		</div>
+		<!-- End Product Section -->
+
+		<!-- Start Why Choose Us Section -->
+		<div class="why-choose-section">
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-lg-6">
+                <h2 class="section-title">Why Choose Us</h2>
+                <p>Top reasons to choose our services:</p>
+
+                <div class="row my-5">
+                    <div class="col-6 col-md-6">
+                        <div class="feature">
+                            <h3>Fast &amp; Free Shipping</h3>
+                            <p>Quick and free shipping for your convenience.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6">
+                        <div class="feature">
+                            <h3>Easy to Shop</h3>
+                            <p>User-friendly shopping experience for simplicity.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6">
+                        <div class="feature">
+                            <h3>24/7 Support</h3>
+                            <p>Always available support for your assistance.</p>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6">
+                        <div class="feature">
+                            <h3>Hassle-Free Returns</h3>
+                            <p>No worries with our easy and hassle-free returns.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="img-wrap">
+                    <img src="images/why-choose-us-img.jpg" alt="Image" class="img-fluid">
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<br><br>
+
+		<!-- End Why Choose Us Section -->
+
+		<!-- Start We Help Section -->
+		<div class="we-help-section">
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-lg-7 mb-5 mb-lg-0">
+                <div class="imgs-grid">
+                    <div class="grid grid-1"><img src="images/img-grid-1.jpg" alt="Untree.co"></div>
+                    <div class="grid grid-2"><img src="images/img-grid-2.jpg" alt="Untree.co"></div>
+                    <div class="grid grid-3"><img src="images/img-grid-3.jpg" alt="Untree.co"></div>
+                </div>
+            </div>
+            <div class="col-lg-5 ps-lg-5">
+                <h2 class="section-title mb-4">We Help You Create Modern Interior Designs</h2>
+                <p>Effortless modern interior design with our expert assistance. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada</p>
+
+                <ul class="list-unstyled custom-list my-4">
+                    <li>Effortless modern interior design assistance</li>
+                    <li>Expert guidance for your interior projects</li>
+                    <li>Enhance your living spaces with our help</li>
+                    <li>Create stylish and modern home interiors</li>
+                </ul>
+                <p><a href="#" class="btn">Explore</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+		<!-- End We Help Section -->
+        <?php require('./components/testimonial.php') ?>
+
+		<!-- Start Testimonial Slider -->
+		
+
+		<!-- End Testimonial Slider -->
+
+		<!-- Start Footer Section -->
+<?php require('./components/footer.php') ?>

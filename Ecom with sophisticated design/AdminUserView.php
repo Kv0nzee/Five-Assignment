@@ -1,72 +1,97 @@
-<?php
-require_once("./components/AdminNavber.php");
+<?php 
+    require('./components/sidebar.php');
+    $users = getAllUsers();
 
-$sql = "SELECT * FROM users";
-$statement = $pdo->prepare($sql);
-$statement->execute();
-$users = $statement->fetchAll(PDO::FETCH_ASSOC);
+    if(isset($_POST["update"])){
+        $id = $_POST["user_id"];
+        header("Location: adminuserupdate.php?id=$id");
+        
+      }
+    
+      if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["delete"])) {
+        $id = $_POST["user_id"];
+        $delete_sql = "DELETE FROM users WHERE userID = $id";
+    
+        $stmt = $pdo->prepare($delete_sql);
+    
+        if ($stmt->execute()) {
+            header("Location: adminuserView.php");
+            exit();
+        } else {
+            echo "Error deleting product.";
+        }
+    } 
 
-if (isset($_POST['create_user'])) {
-    header("Location: adminUserCreate.php");
-    exit();
-}
-
-if (isset($_POST['view'])) {
-    $id = $_POST['user_id'];
-    header("Location: adminuserdetailview.php?id=$id");
-    exit();
-}
-
-if (isset($_POST['delete'])) {
-    $id = $_POST['user_id'];
-    // Perform delete action here
-    header("Location: adminUserDelete.php?id=$id");
-    exit();
-}
-
-if (isset($_GET['delete']) && $_GET['delete'] == true) {
-    echo "<script>alert('User Deleted.')</script>";
-}
-?>
-
-
-<div class="container mt-5">
-    <div class="mb-3">
-        <form method="POST">
-            <button class="btn btn-primary" type="submit" name="create_user">Create New User</button>
-        </form>
+ ?>
+<div class="body-wrapper">  
+    <div class="col-lg-8 d-flex align-items-stretch w-100">
+        <div class="card w-100">
+            <div class="card-body p-4">
+                <h5 class="card-title fw-semibold mb-4">Users View</h5>
+                <a href="adminUserCreate.php" class="btn btn-primary m-1">User Create</a>
+                <div class="table-responsive">
+                    <table class="table text-nowrap mb-0 align-middle w-100">
+                        <thead class="text-dark fs-4">
+                            <tr>
+                                <th class="border-bottom-0">
+                                    <h6 class="fw-semibold mb-0">User ID</h6>
+                                </th>
+                                <th class="border-bottom-0">
+                                    <h6 class="fw-semibold mb-0">User Name</h6>
+                                </th>
+                                <th class="border-bottom-0">
+                                    <h6 class="fw-semibold mb-0">User Email</h6>
+                                </th>
+                                <th class="border-bottom-0">
+                                    <h6 class="fw-semibold mb-0">User Address</h6>
+                                </th>
+                                <th class="border-bottom-0">
+                                    <h6 class="fw-semibold mb-0">User Phone</h6>
+                                </th>
+                                <th class="border-bottom-0">
+                                    <h6 class="fw-semibold mb-0">User Type</h6>
+                                </th>
+                                <th class="border-bottom-0">
+                                    <h6 class="fw-semibold mb-0">Action</h6>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // Assuming $users is an array containing user data
+                            foreach ($users as $user) {
+                            ?>
+                                <tr>
+                                    <td class="border-bottom-0"><h6 class="fw-semibold mb-0"><?= $user['userID'] ?></h6></td>
+                                    <td class="border-bottom-0">
+                                        <h6 class="fw-semibold mb-1"><?= $user['userName'] ?></h6>
+                                        <span class="fw-normal"><?= $user['userType'] ?></span>
+                                    </td>
+                                    <td class="border-bottom-0">
+                                        <p class="mb-0 fw-normal"><?= $user['userEmail'] ?></p>
+                                    </td>
+                                    <td class="border-bottom-0">
+                                        <p class="mb-0 fw-normal"><?= $user['userAddress'] ?></p>
+                                    </td>
+                                    <td class="border-bottom-0">
+                                        <p class="mb-0 fw-normal"><?= $user['userPhone'] ?></p>
+                                    </td>
+                                    <td class="border-bottom-0">
+                                        <p class="mb-0 fw-normal"><?= $user['userType'] ?></p>
+                                    </td>
+                                    <td class="border-bottom-0">
+                                        <form method="POST">
+                                            <input type="hidden" name="user_id" value=<?= $user['userID']?> >
+                                            <button class="btn btn-outline-info" name="update">Update</button>
+                                            <button class="btn btn-outline-danger" name="delete">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-    <table class="table table-bordered table-hover table-striped">
-        <thead class="table-primary">
-            <tr>
-                <th scope="col">User ID</th>
-                <th scope="col">User Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Address</th>
-                <th scope="col">Phone</th>
-                <th scope="col">User Type</th>
-                <th scope="col">Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($users as $user): ?>
-                <form method="POST">
-                    <?php $user_id = $user['userID']; ?>
-                    <tr>
-                        <th scope="row"><?= $user_id ?></th>
-                        <td><?= $user['userName'] ?></td>
-                        <td><?= $user['userEmail'] ?></td>
-                        <td><?= $user['userAddress'] ?></td>
-                        <td><?= $user['userPhone'] ?></td>
-                        <td><?= $user['userType'] ?></td>
-                        <td>
-                            <input type="hidden" name="user_id" value=<?= $user_id ?>>
-                            <button class="btn btn-info btn-sm" type="submit" name="view">View</button>
-                            <button class="btn btn-danger btn-sm" type="submit" name="delete">Delete</button>
-                        </td>
-                    </tr>
-                </form>
-            <?php endforeach ?>
-        </tbody>
-    </table>
 </div>
